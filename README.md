@@ -1,56 +1,122 @@
-# Welcome to your Expo app 👋
+# 🍺 Jogo do Número
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Um jogo de bar mobile do tipo "passa o celular" para jogar presencialmente com amigos. Feito com **React Native**, **Expo** e **TypeScript**.
 
-## Get started
+## 🎮 Como funciona
 
-1. Install dependencies
+1. O celular sorteia um número secreto entre 1 e 60
+2. Cada jogador, na sua vez, escolhe um número no grid
+3. Se acertar o número secreto — **bebe!** 🍺
+4. Se errar, parte dos números é eliminada e o jogo continua
+5. Quando restam apenas 2 números consecutivos e alguém revela o secreto por eliminação, quem iniciou a rodada bebe
 
-   ```bash
-   npm install
-   ```
+## 🚀 Como rodar
 
-2. Start the app
+### Pré-requisitos
 
-   ```bash
-   npx expo start
-   ```
+- [Node.js](https://nodejs.org/) (v18 ou superior)
+- [Expo Go](https://expo.dev/go) instalado no celular (Android ou iOS)
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### Instalação
 
 ```bash
-npm run reset-project
+# Clone o repositório
+git clone <repo-url>
+cd drink-game
+
+# Instale as dependências
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Rodando o app
 
-### Other setup steps
+```bash
+# Inicia o servidor de desenvolvimento
+npx expo start
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Escaneie o QR code com o **Expo Go** (Android) ou com a câmera (iOS).
 
-## Learn more
+### Rodando em emulador
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+# Android
+npx expo start --android
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# iOS (apenas macOS)
+npx expo start --ios
+```
 
-## Join the community
+## 🧪 Testes
 
-Join our community of developers creating universal apps.
+A lógica do jogo é coberta por **52 testes unitários** em Jest:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npm test
+```
+
+Os testes cobrem:
+- Sorteio do número secreto nos limites (1 e 60)
+- Escolha de números nos extremos (1 e 60)
+- Desabilitar números corretamente acima/abaixo do secreto
+- Números "pulados" no meio do range continuam disponíveis
+- Caso especial de 2 números adjacentes restantes (ambos desfechos)
+- Rejeição de números já desabilitados
+- Rotação de jogadores e transição de rodadas
+
+## 📁 Estrutura do projeto
+
+```
+drink-game/
+├── src/
+│   ├── app/                    # Telas (Expo Router)
+│   │   ├── _layout.tsx         # Root layout (Stack Navigator + GameProvider)
+│   │   ├── index.tsx           # HomeScreen
+│   │   ├── setup.tsx           # SetupScreen (cadastro de jogadores)
+│   │   ├── game.tsx            # GameScreen (grid de números)
+│   │   ├── round-result.tsx    # RoundResultScreen (quem bebe)
+│   │   └── how-to-play.tsx     # HowToPlayScreen (regras)
+│   ├── components/             # Componentes reutilizáveis
+│   │   ├── NumberCell.tsx      # Célula individual do grid
+│   │   ├── NumberGrid.tsx      # Grid 6×10 de números
+│   │   ├── PlayerTurnBanner.tsx # Banner "vez de..."
+│   │   └── PrimaryButton.tsx   # Botão com gradiente
+│   ├── game/                   # Lógica pura (zero React)
+│   │   ├── types.ts            # Tipos (Player, GameState, etc.)
+│   │   ├── gameRules.ts        # Funções de regra puras
+│   │   ├── gameEngine.ts       # Processamento de jogadas
+│   │   └── gameReducer.ts      # Reducer para useReducer
+│   ├── hooks/
+│   │   └── useGame.tsx         # Context + hook do jogo
+│   └── theme/                  # Design tokens
+│       ├── colors.ts
+│       ├── typography.ts
+│       └── spacing.ts
+├── __tests__/
+│   └── game/
+│       ├── gameRules.test.ts   # Testes das regras
+│       └── gameEngine.test.ts  # Testes do engine
+└── ...
+```
+
+## 🎨 Design
+
+- **Tema escuro** otimizado para ambientes de bar (baixa luminosidade)
+- Paleta âmbar/dourada sobre fundo escuro
+- Botões grandes para facilitar uso em ambientes de bar
+- Feedback tátil (haptics) ao interagir
+- Animações sutis nas transições
+
+## 📋 Stack técnica
+
+- **Expo SDK 57** + **React Native 0.86**
+- **Expo Router** (file-based navigation)
+- **TypeScript** com tipagem estrita
+- **useReducer** para gerenciamento de estado
+- **Jest** + **ts-jest** para testes
+- **expo-haptics** para feedback tátil
+- **expo-linear-gradient** para gradientes
+
+## 📝 Licença
+
+MIT

@@ -1,98 +1,132 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+/**
+ * HomeScreen — Entry point of the app.
+ *
+ * Displays the game title with a beer-themed design,
+ * "Novo Jogo" and "Como Jogar" buttons.
+ */
+
+import React from 'react';
+import { View, Text, StyleSheet, Animated } from 'react-native';
+import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import { PrimaryButton } from '@/components/PrimaryButton';
+import { colors } from '@/theme/colors';
+import { typography } from '@/theme/typography';
+import { spacing } from '@/theme/spacing';
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const slideAnim = React.useRef(new Animated.Value(30)).current;
+
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        speed: 8,
+        bounciness: 4,
+      }),
+    ]).start();
+  }, [fadeAnim, slideAnim]);
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <LinearGradient
+      colors={[colors.background, colors.surface]}
+      style={styles.gradient}
+    >
+      <SafeAreaView style={styles.container}>
+        <Animated.View
+          style={[
+            styles.heroContainer,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          {/* Beer emoji as logo */}
+          <Text style={styles.emoji}>🍺</Text>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+          <Text style={styles.title}>Jogo do{'\n'}Número</Text>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
+          <Text style={styles.subtitle}>
+            Escolha um número. Não acerte o secreto.{'\n'}
+            Quem acertar... bebe!
+          </Text>
+        </Animated.View>
+
+        <View style={styles.buttonsContainer}>
+          <PrimaryButton
+            title="Novo Jogo"
+            onPress={() => router.push('/setup')}
+            variant="primary"
           />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
 
-        {Platform.OS === 'web' && <WebBadge />}
+          <View style={styles.buttonSpacer} />
+
+          <PrimaryButton
+            title="Como Jogar"
+            onPress={() => router.push('/how-to-play')}
+            variant="ghost"
+          />
+        </View>
+
+        <Text style={styles.footer}>
+          Um jogo para amigos no bar 🍻
+        </Text>
       </SafeAreaView>
-    </ThemedView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
     alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+    paddingHorizontal: spacing.xxl,
   },
-  heroSection: {
+  heroContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    marginBottom: spacing.huge,
+  },
+  emoji: {
+    fontSize: 80,
+    marginBottom: spacing.lg,
   },
   title: {
+    ...typography.hero,
+    color: colors.primary,
     textAlign: 'center',
+    lineHeight: 48,
   },
-  code: {
-    textTransform: 'uppercase',
+  subtitle: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: spacing.lg,
+    lineHeight: 24,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  buttonsContainer: {
+    width: '100%',
+    maxWidth: 320,
+  },
+  buttonSpacer: {
+    height: spacing.md,
+  },
+  footer: {
+    ...typography.caption,
+    color: colors.textMuted,
+    marginTop: spacing.huge,
   },
 });
