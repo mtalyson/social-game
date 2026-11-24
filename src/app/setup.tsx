@@ -1,11 +1,4 @@
-/**
- * SetupScreen — Player registration.
- *
- * Players type their names to join the game. Supports 2–12 players.
- * Each player gets a unique ID generated at registration time.
- */
-
-import React, { useState, useRef } from 'react';
+import { useState, useRef, type ComponentRef } from 'react';
 import {
   View,
   Text,
@@ -31,7 +24,7 @@ export default function SetupScreen() {
   const { startGame } = useGame();
   const [players, setPlayers] = useState<Player[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
 
   const canAddMore = players.length < MAX_PLAYERS;
   const canStart = players.length >= MIN_PLAYERS;
@@ -89,7 +82,6 @@ export default function SetupScreen() {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Text style={styles.backText}>← Voltar</Text>
@@ -100,7 +92,6 @@ export default function SetupScreen() {
           </Text>
         </View>
 
-        {/* Player input */}
         <View style={styles.inputContainer}>
           <TextInput
             ref={inputRef}
@@ -126,7 +117,6 @@ export default function SetupScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Player list */}
         <FlatList
           data={players}
           renderItem={renderPlayer}
@@ -140,7 +130,6 @@ export default function SetupScreen() {
           }
         />
 
-        {/* Player count */}
         <Text style={styles.countText}>
           {players.length} jogador{players.length !== 1 ? 'es' : ''}
           {players.length < MIN_PLAYERS
@@ -148,7 +137,6 @@ export default function SetupScreen() {
             : ''}
         </Text>
 
-        {/* Start button */}
         <View style={styles.footer}>
           <PrimaryButton
             title="Começar! 🍺"

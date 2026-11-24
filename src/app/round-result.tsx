@@ -1,12 +1,4 @@
-/**
- * RoundResultScreen — Shows who lost and drinks.
- *
- * Displays the loser, the secret number revealed, and the reason
- * (direct hit or elimination reveal). Allows starting a new round
- * or ending the game.
- */
-
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,13 +14,11 @@ export default function RoundResultScreen() {
   const { state, nextRound, resetGame } = useGame();
   const result = state.roundResult;
 
-  // Animations
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
 
   useEffect(() => {
-    // Heavy haptic when result is shown
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 
     Animated.sequence([
@@ -54,7 +44,6 @@ export default function RoundResultScreen() {
     ]).start();
   }, [fadeAnim, scaleAnim, slideAnim]);
 
-  // Redirect if no result (user navigated directly)
   useEffect(() => {
     if (!result) {
       router.replace('/');
@@ -81,7 +70,6 @@ export default function RoundResultScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {/* Result card */}
         <Animated.View
           style={[
             styles.resultCard,
@@ -97,14 +85,12 @@ export default function RoundResultScreen() {
           </Text>
           <Text style={styles.subtitle}>bebe!</Text>
 
-          {/* Secret number reveal */}
           <View style={styles.secretContainer}>
             <Text style={styles.secretLabel}>O número secreto era</Text>
             <Text style={styles.secretNumber}>{result.secretNumber}</Text>
           </View>
         </Animated.View>
 
-        {/* Reason */}
         <Animated.View
           style={[
             styles.reasonCard,
@@ -120,7 +106,6 @@ export default function RoundResultScreen() {
           <Text style={styles.reasonText}>{reasonText}</Text>
         </Animated.View>
 
-        {/* Info about next round */}
         <Animated.View
           style={[
             styles.nextRoundInfo,
@@ -136,7 +121,6 @@ export default function RoundResultScreen() {
         </Animated.View>
       </View>
 
-      {/* Action buttons */}
       <View style={styles.footer}>
         <PrimaryButton
           title="Próxima Rodada 🔄"

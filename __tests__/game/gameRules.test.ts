@@ -1,14 +1,3 @@
-/**
- * Unit tests for gameRules.ts
- *
- * Covers all pure rule functions including edge cases for:
- * - Secret number generation bounds
- * - Number availability checks
- * - Disable logic for guesses above/below secret
- * - Two-adjacent-remaining detection (Rule #4)
- * - Edge cases at bounds (1 and 60)
- */
-
 import {
   getRandomSecretNumber,
   getAvailableNumbers,
@@ -19,13 +8,8 @@ import {
 } from '../../src/game/gameRules';
 import { MIN_NUMBER, MAX_NUMBER } from '../../src/game/types';
 
-// ---------------------------------------------------------------------------
-// getRandomSecretNumber
-// ---------------------------------------------------------------------------
-
 describe('getRandomSecretNumber', () => {
   it('should return a number between MIN_NUMBER and MAX_NUMBER (inclusive)', () => {
-    // Run multiple times to increase confidence
     for (let i = 0; i < 200; i++) {
       const n = getRandomSecretNumber();
       expect(n).toBeGreaterThanOrEqual(MIN_NUMBER);
@@ -34,10 +18,6 @@ describe('getRandomSecretNumber', () => {
     }
   });
 });
-
-// ---------------------------------------------------------------------------
-// getAvailableNumbers
-// ---------------------------------------------------------------------------
 
 describe('getAvailableNumbers', () => {
   it('should return all 60 numbers when none are disabled', () => {
@@ -64,10 +44,6 @@ describe('getAvailableNumbers', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// getAvailableBounds
-// ---------------------------------------------------------------------------
-
 describe('getAvailableBounds', () => {
   it('should return min=1, max=60 when nothing is disabled', () => {
     const bounds = getAvailableBounds(new Set());
@@ -75,7 +51,6 @@ describe('getAvailableBounds', () => {
   });
 
   it('should return correct bounds after lower numbers disabled', () => {
-    // Disable 1–30
     const disabled = new Set<number>();
     for (let i = 1; i <= 30; i++) disabled.add(i);
     const bounds = getAvailableBounds(disabled);
@@ -89,7 +64,6 @@ describe('getAvailableBounds', () => {
   });
 
   it('should handle sparse disabled numbers (gaps in middle)', () => {
-    // Disable 1–10 and 50–60, leaving 11–49
     const disabled = new Set<number>();
     for (let i = 1; i <= 10; i++) disabled.add(i);
     for (let i = 50; i <= 60; i++) disabled.add(i);
@@ -97,10 +71,6 @@ describe('getAvailableBounds', () => {
     expect(bounds).toEqual({ min: 11, max: 49 });
   });
 });
-
-// ---------------------------------------------------------------------------
-// isNumberAvailable
-// ---------------------------------------------------------------------------
 
 describe('isNumberAvailable', () => {
   it('should return true for available numbers', () => {
@@ -122,13 +92,8 @@ describe('isNumberAvailable', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// getNumbersToDisable
-// ---------------------------------------------------------------------------
-
 describe('getNumbersToDisable', () => {
   it('should disable numbers <= guess when guess < secretNumber', () => {
-    // Guess 30, secret is 45 → disable 1–30
     const toDisable = getNumbersToDisable(30, 45, new Set());
     expect(toDisable.length).toBe(30);
     expect(toDisable).toContain(1);
@@ -137,7 +102,6 @@ describe('getNumbersToDisable', () => {
   });
 
   it('should disable numbers >= guess when guess > secretNumber', () => {
-    // Guess 40, secret is 20 → disable 40–60
     const toDisable = getNumbersToDisable(40, 20, new Set());
     expect(toDisable.length).toBe(21);
     expect(toDisable).toContain(40);
@@ -151,11 +115,9 @@ describe('getNumbersToDisable', () => {
   });
 
   it('should not include already-disabled numbers in the result', () => {
-    // Already disabled: 1–10, guess 20, secret 45
     const disabled = new Set<number>();
     for (let i = 1; i <= 10; i++) disabled.add(i);
     const toDisable = getNumbersToDisable(20, 45, disabled);
-    // Should only include 11–20 (not 1–10 which are already disabled)
     expect(toDisable.length).toBe(10);
     expect(toDisable).not.toContain(1);
     expect(toDisable).toContain(11);
@@ -163,48 +125,38 @@ describe('getNumbersToDisable', () => {
   });
 
   it('edge case: guess is 1 and secret is higher', () => {
-    // Guess 1, secret is 30 → only disable 1
     const toDisable = getNumbersToDisable(1, 30, new Set());
     expect(toDisable).toEqual([1]);
   });
 
   it('edge case: guess is 60 and secret is lower', () => {
-    // Guess 60, secret is 30 → only disable 60
     const toDisable = getNumbersToDisable(60, 30, new Set());
     expect(toDisable).toEqual([60]);
   });
 
   it('edge case: guess is 1 and secret is 1 (direct hit)', () => {
     const toDisable = getNumbersToDisable(1, 1, new Set());
-    expect(toDisable.length).toBe(0); // Direct hit, no disable needed
+    expect(toDisable.length).toBe(0);
   });
 
   it('edge case: guess is 60 and secret is 60 (direct hit)', () => {
     const toDisable = getNumbersToDisable(60, 60, new Set());
-    expect(toDisable.length).toBe(0); // Direct hit, no disable needed
+    expect(toDisable.length).toBe(0);
   });
 
   it('should preserve "skipped" numbers in the middle of the range', () => {
-    // Scenario: interval is 1–60, someone guesses 30 with secret 45
-    // Numbers 1–30 disabled. Then 31–44 should still be available.
     const disabled = new Set<number>();
     const toDisable = getNumbersToDisable(30, 45, disabled);
     for (const n of toDisable) disabled.add(n);
 
-    // Verify 31–44 are all still available
     for (let i = 31; i <= 44; i++) {
       expect(disabled.has(i)).toBe(false);
     }
-    // Verify 45–60 are also available
     for (let i = 45; i <= 60; i++) {
       expect(disabled.has(i)).toBe(false);
     }
   });
 });
-
-// ---------------------------------------------------------------------------
-// checkTwoAdjacentRemaining (Rule #4 — special case)
-// ---------------------------------------------------------------------------
 
 describe('checkTwoAdjacentRemaining', () => {
   it('should return null when many numbers are still available', () => {
@@ -212,12 +164,10 @@ describe('checkTwoAdjacentRemaining', () => {
   });
 
   it('should return null when bounds differ by more than 1', () => {
-    // Only 10 and 12 available (not adjacent: 11 is disabled between them)
     const disabled = new Set<number>();
     for (let i = 1; i <= 60; i++) {
       if (i !== 10 && i !== 12) disabled.add(i);
     }
-    // min=10, max=12, diff=2 → not adjacent
     expect(checkTwoAdjacentRemaining(disabled)).toBeNull();
   });
 
@@ -249,12 +199,10 @@ describe('checkTwoAdjacentRemaining', () => {
     for (let i = 1; i <= 60; i++) {
       if (i !== 30) disabled.add(i);
     }
-    // min=30, max=30, diff=0 → not two adjacent
     expect(checkTwoAdjacentRemaining(disabled)).toBeNull();
   });
 
   it('should return null when three or more numbers span adjacent range', () => {
-    // 18, 19, 20 available → min=18, max=20, diff=2 → not two adjacent
     const disabled = new Set<number>();
     for (let i = 1; i <= 60; i++) {
       if (i !== 18 && i !== 19 && i !== 20) disabled.add(i);

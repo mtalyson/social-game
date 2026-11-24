@@ -1,12 +1,4 @@
-/**
- * GameScreen — Main gameplay screen.
- *
- * Displays the number grid, player turn banner, and handles the
- * confirmation modal before a guess is finalized. Navigates to
- * RoundResultScreen when a round ends.
- */
-
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -32,21 +24,18 @@ export default function GameScreen() {
   const { state, makeGuess, currentPlayer, availableBounds } = useGame();
   const [confirmNumber, setConfirmNumber] = useState<number | null>(null);
 
-  // Navigate to round-result when a round ends
   useEffect(() => {
     if (state.phase === 'roundResult' && state.roundResult) {
       router.replace('/round-result');
     }
   }, [state.phase, state.roundResult, router]);
 
-  // Redirect to home if game state is invalid (e.g. user navigated directly)
   useEffect(() => {
     if (state.phase === 'setup' || state.players.length === 0) {
       router.replace('/');
     }
   }, [state.phase, state.players.length, router]);
 
-  // Prevent accidental back navigation
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
@@ -90,13 +79,11 @@ export default function GameScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Player turn banner */}
         <PlayerTurnBanner
           playerName={currentPlayer.name}
           roundNumber={state.roundNumber}
         />
 
-        {/* Number grid */}
         <View style={styles.gridContainer}>
           <NumberGrid
             disabledNumbers={state.disabledNumbers}
@@ -107,7 +94,6 @@ export default function GameScreen() {
         </View>
       </ScrollView>
 
-      {/* Confirmation modal */}
       <Modal
         visible={confirmNumber !== null}
         transparent
@@ -159,7 +145,6 @@ const styles = StyleSheet.create({
   gridContainer: {
     marginTop: spacing.xl,
   },
-  // Modal
   modalOverlay: {
     flex: 1,
     backgroundColor: colors.overlay,
