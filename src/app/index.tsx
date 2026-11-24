@@ -1,11 +1,3 @@
-/**
- * HomeScreen — Entry point of the app.
- *
- * Displays the game title with a beer-themed design,
- * "Novo Jogo" and "Como Jogar" buttons.
- */
-
-import React from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,13 +6,14 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing } from '@/theme/spacing';
+import { useEffect, useRef } from 'react';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const slideAnim = React.useRef(new Animated.Value(30)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
 
-  React.useEffect(() => {
+  useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -51,7 +44,6 @@ export default function HomeScreen() {
             },
           ]}
         >
-          {/* Beer emoji as logo */}
           <Text style={styles.emoji}>🍺</Text>
 
           <Text style={styles.title}>Jogo do{'\n'}Número</Text>

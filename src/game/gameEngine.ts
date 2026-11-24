@@ -1,12 +1,3 @@
-/**
- * Game Engine — processes guesses and produces new game states.
- *
- * This is the core "brain" of the game. It takes the current state and a
- * guess, validates it, applies the rules, and returns the resulting state.
- *
- * Completely decoupled from React — works with plain objects and Sets.
- */
-
 import {
   GameState,
   RoundResult,
@@ -22,10 +13,6 @@ import {
   getAvailableBounds,
 } from './gameRules';
 
-// ---------------------------------------------------------------------------
-// Engine errors
-// ---------------------------------------------------------------------------
-
 export class InvalidGuessError extends Error {
   constructor(message: string) {
     super(message);
@@ -33,32 +20,14 @@ export class InvalidGuessError extends Error {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Core engine function
-// ---------------------------------------------------------------------------
-
 export interface GuessOutcome {
-  /** The new game state after processing the guess. */
   newState: GameState;
-  /** If the round ended, this contains the result. */
   roundResult: RoundResult | null;
 }
 
-/**
- * Processes a player's guess and returns the resulting game state.
- *
- * Flow:
- * 1. Validate the guess (in range, available).
- * 2. If guess === secretNumber → player loses (guessedSecret).
- * 3. Otherwise, disable the appropriate numbers.
- * 4. Check if exactly two adjacent numbers remain → roundStarter loses
- *    (revealedByElimination).
- * 5. Otherwise, advance the turn to the next player.
- */
 export function processGuess(state: GameState, guess: number): GuessOutcome {
   const currentPlayer = state.players[state.currentPlayerIndex];
 
-  // --- Validation ---
   if (guess < MIN_NUMBER || guess > MAX_NUMBER) {
     throw new InvalidGuessError(
       `Guess ${guess} is out of range [${MIN_NUMBER}, ${MAX_NUMBER}].`
@@ -71,7 +40,6 @@ export function processGuess(state: GameState, guess: number): GuessOutcome {
     );
   }
 
-  // --- Case 1: Direct hit — player guessed the secret number ---
   if (guess === state.secretNumber) {
     const roundResult: RoundResult = {
       loser: currentPlayer,
@@ -91,7 +59,6 @@ export function processGuess(state: GameState, guess: number): GuessOutcome {
     };
   }
 
-  // --- Case 2 & 3: Guess is not the secret — disable numbers ---
   const numbersToDisable = getNumbersToDisable(
     guess,
     state.secretNumber,
@@ -103,17 +70,9 @@ export function processGuess(state: GameState, guess: number): GuessOutcome {
     newDisabled.add(n);
   }
 
-  // --- Case 4: Check for the "two adjacent remaining" special case ---
-  // This check happens AFTER disabling numbers from the current guess.
-  // If exactly two adjacent numbers remain as the bounds, the secret is
-  // revealed by elimination and the round starter loses.
   const twoAdjacent = checkTwoAdjacentRemaining(newDisabled);
 
   if (twoAdjacent) {
-    // The secret must be one of the two remaining adjacent numbers.
-    // Since the player's guess was NOT the secret (we handled that above),
-    // and the guess just narrowed the range to these two numbers,
-    // the secret is now effectively known — the round starter loses.
     const roundResult: RoundResult = {
       loser: state.roundStarter,
       reason: 'revealedByElimination',
@@ -133,7 +92,6 @@ export function processGuess(state: GameState, guess: number): GuessOutcome {
     };
   }
 
-  // --- Normal case: advance to the next player ---
   const nextPlayerIndex =
     (state.currentPlayerIndex + 1) % state.players.length;
 
@@ -148,13 +106,6 @@ export function processGuess(state: GameState, guess: number): GuessOutcome {
   };
 }
 
-// ---------------------------------------------------------------------------
-// State factory helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Creates the initial game state for a new game.
- */
 export function createInitialGameState(players: Player[]): GameState {
   const secretNumber = getRandomSecretNumber();
   return {
@@ -169,10 +120,6 @@ export function createInitialGameState(players: Player[]): GameState {
   };
 }
 
-/**
- * Creates the state for a new round after a round has ended.
- * The loser of the previous round becomes the round starter.
- */
 export function createNextRoundState(state: GameState): GameState {
   if (!state.roundResult) {
     throw new Error('Cannot start next round: no round result available.');

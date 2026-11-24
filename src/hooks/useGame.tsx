@@ -1,44 +1,22 @@
-/**
- * Game Context & Hook — provides game state and actions to all screens.
- *
- * Uses React Context + useReducer to share game state across the app
- * without prop drilling. This is the bridge between the pure game logic
- * (in src/game/) and the React UI layer.
- */
-
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import { createContext, useContext, useReducer, useCallback } from 'react';
 import { GameState, GameAction, Player } from '@/game/types';
 import { gameReducer, initialGameState } from '@/game/gameReducer';
 import { getAvailableBounds } from '@/game/gameRules';
-
-// ---------------------------------------------------------------------------
-// Context types
-// ---------------------------------------------------------------------------
 
 interface GameContextValue {
   state: GameState;
   dispatch: React.Dispatch<GameAction>;
 
-  // Typed action helpers
   startGame: (players: Player[]) => void;
   makeGuess: (number: number) => void;
   nextRound: () => void;
   resetGame: () => void;
 
-  // Derived data helpers
   currentPlayer: Player | null;
   availableBounds: { min: number; max: number } | null;
 }
 
-// ---------------------------------------------------------------------------
-// Context
-// ---------------------------------------------------------------------------
-
 const GameContext = createContext<GameContextValue | null>(null);
-
-// ---------------------------------------------------------------------------
-// Provider
-// ---------------------------------------------------------------------------
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(gameReducer, initialGameState);
@@ -86,14 +64,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Hook
-// ---------------------------------------------------------------------------
-
-/**
- * Hook to access the game state and actions.
- * Must be used within a GameProvider.
- */
 export function useGame(): GameContextValue {
   const context = useContext(GameContext);
   if (!context) {

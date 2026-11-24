@@ -1,11 +1,3 @@
-/**
- * HowToPlayScreen — Rules explanation.
- *
- * Displays the game rules in a friendly, easy-to-read format
- * with emojis for visual scanning in a dark bar environment.
- */
-
-import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';

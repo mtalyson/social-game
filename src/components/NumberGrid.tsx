@@ -1,33 +1,27 @@
-import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { NumberCell } from './NumberCell';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing, borderRadius } from '@/theme/spacing';
+import { useCallback } from 'react';
 
 interface NumberGridProps {
   disabledNumbers: Set<number>;
   onSelectNumber: (number: number) => void;
-  /** Smallest available number */
   minAvailable: number | null;
-  /** Largest available number */
   maxAvailable: number | null;
 }
 
 const NUMBERS = Array.from({ length: 60 }, (_, i) => i + 1);
 const NUM_COLUMNS = 6;
 
-/**
- * Grid of 60 numbers (6 columns × 10 rows) with visual indication
- * of the active range. Disabled numbers appear dimmed and are not interactive.
- */
 export function NumberGrid({
   disabledNumbers,
   onSelectNumber,
   minAvailable,
   maxAvailable,
 }: NumberGridProps) {
-  const renderItem = React.useCallback(
+  const renderItem = useCallback(
     ({ item }: { item: number }) => (
       <NumberCell
         number={item}
@@ -38,14 +32,13 @@ export function NumberGrid({
     [disabledNumbers, onSelectNumber]
   );
 
-  const keyExtractor = React.useCallback(
+  const keyExtractor = useCallback(
     (item: number) => item.toString(),
     []
   );
 
   return (
     <View style={styles.container}>
-      {/* Active range indicator */}
       {minAvailable !== null && maxAvailable !== null && (
         <View style={styles.rangeIndicator}>
           <Text style={styles.rangeText}>
@@ -57,7 +50,6 @@ export function NumberGrid({
         </View>
       )}
 
-      {/* Number grid */}
       <FlatList
         data={NUMBERS}
         renderItem={renderItem}

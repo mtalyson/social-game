@@ -1,10 +1,3 @@
-/**
- * Root layout for Expo Router.
- *
- * Wraps all screens with the GameProvider and configures the Stack Navigator
- * with the dark bar theme. All screens use headerShown: false for custom headers.
- */
-
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GameProvider } from '@/hooks/useGame';
@@ -26,7 +19,7 @@ export default function RootLayout() {
         <Stack.Screen
           name="game"
           options={{
-            gestureEnabled: false, // Prevent accidental back swipe during gameplay
+            gestureEnabled: false,
           }}
         />
         <Stack.Screen

@@ -1,26 +1,22 @@
-import React from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing, borderRadius } from '@/theme/spacing';
+import { useEffect, useRef } from 'react';
 
 interface PlayerTurnBannerProps {
   playerName: string;
   roundNumber: number;
 }
 
-/**
- * Banner displayed at the top of the GameScreen indicating whose turn it is.
- * Features a subtle entrance animation when the player changes.
- */
 export function PlayerTurnBanner({
   playerName,
   roundNumber,
 }: PlayerTurnBannerProps) {
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const slideAnim = React.useRef(new Animated.Value(-20)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(-20)).current;
 
-  React.useEffect(() => {
+  useEffect(() => {
     fadeAnim.setValue(0);
     slideAnim.setValue(-20);
 

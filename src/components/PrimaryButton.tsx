@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -22,9 +21,6 @@ interface PrimaryButtonProps {
   style?: ViewStyle;
 }
 
-/**
- * Reusable premium button with gradient background and haptic feedback.
- */
 export function PrimaryButton({
   title,
   onPress,

@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -9,6 +8,7 @@ import {
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { borderRadius } from '@/theme/spacing';
+import { useRef } from 'react';
 
 interface NumberCellProps {
   number: number;
@@ -16,15 +16,8 @@ interface NumberCellProps {
   onPress: (number: number) => void;
 }
 
-/**
- * A single cell in the number grid representing one number (1–60).
- *
- * Visual states:
- * - Available: dark purple-blue with subtle border, fully interactive
- * - Disabled: very dark, low contrast, not pressable
- */
 export function NumberCell({ number, disabled, onPress }: NumberCellProps) {
-  const scaleAnim = React.useRef(new Animated.Value(1)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
