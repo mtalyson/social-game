@@ -1,0 +1,125 @@
+import { gameReducer, initialGameState } from './gameReducer';
+import type {
+  IPlayer,
+  IPlayingGameState,
+  IRoundResultGameState,
+} from '@/types/game/interfaces/game';
+
+const players: IPlayer[] = [
+  { id: '1', name: 'Alice' },
+  { id: '2', name: 'Bob' },
+];
+
+describe('gameReducer', () => {
+  it('START_GAME transitions from setup to playing', () => {
+    const next = gameReducer(initialGameState, {
+      type: 'START_GAME',
+      players,
+    });
+
+    expect(next.phase).toBe('playing');
+    expect(next.players).toEqual(players);
+    expect(next.roundNumber).toBe(1);
+    if (next.phase === 'playing') {
+      expect(next.currentPlayerIndex).toBe(0);
+      expect(next.disabledNumbers.size).toBe(0);
+      expect(next.lastError).toBeNull();
+    }
+  });
+
+  it('MAKE_GUESS ignores action when phase is not playing', () => {
+    const next = gameReducer(initialGameState, {
+      type: 'MAKE_GUESS',
+      number: 10,
+    });
+
+    expect(next).toBe(initialGameState);
+  });
+
+  it('MAKE_GUESS updates state on valid guess', () => {
+    const playingState: IPlayingGameState = {
+      phase: 'playing',
+      players,
+      currentPlayerIndex: 0,
+      secretNumber: 40,
+      disabledNumbers: new Set(),
+      roundStarter: players[0],
+      roundNumber: 1,
+      lastError: null,
+    };
+
+    const next = gameReducer(playingState, { type: 'MAKE_GUESS', number: 20 });
+
+    expect(next.phase).toBe('playing');
+    if (next.phase === 'playing') {
+      expect(next.currentPlayerIndex).toBe(1);
+      expect(next.disabledNumbers.has(20)).toBe(true);
+      expect(next.lastError).toBeNull();
+    }
+  });
+
+  it('MAKE_GUESS records lastError on invalid guess instead of throwing', () => {
+    const playingState: IPlayingGameState = {
+      phase: 'playing',
+      players,
+      currentPlayerIndex: 0,
+      secretNumber: 40,
+      disabledNumbers: new Set([10]),
+      roundStarter: players[0],
+      roundNumber: 1,
+      lastError: null,
+    };
+
+    const next = gameReducer(playingState, { type: 'MAKE_GUESS', number: 10 });
+
+    expect(next.phase).toBe('playing');
+    if (next.phase === 'playing') {
+      expect(next.lastError).toContain('10');
+      expect(next.currentPlayerIndex).toBe(0);
+    }
+  });
+
+  it('NEXT_ROUND ignores action when phase is not roundResult', () => {
+    const next = gameReducer(initialGameState, { type: 'NEXT_ROUND' });
+    expect(next).toBe(initialGameState);
+  });
+
+  it('NEXT_ROUND starts a new round with loser as starter', () => {
+    const roundResultState: IRoundResultGameState = {
+      phase: 'roundResult',
+      players,
+      currentPlayerIndex: 1,
+      secretNumber: 25,
+      disabledNumbers: new Set([1, 2, 3]),
+      roundStarter: players[0],
+      roundNumber: 1,
+      roundResult: {
+        loser: players[1],
+        reason: 'guessedSecret',
+        secretNumber: 25,
+        roundStarter: players[0],
+        lastGuess: 25,
+      },
+    };
+
+    const next = gameReducer(roundResultState, { type: 'NEXT_ROUND' });
+
+    expect(next.phase).toBe('playing');
+    expect(next.roundNumber).toBe(2);
+    if (next.phase === 'playing') {
+      expect(next.roundStarter.id).toBe('2');
+      expect(next.currentPlayerIndex).toBe(1);
+      expect(next.disabledNumbers.size).toBe(0);
+    }
+  });
+
+  it('RESET_GAME returns initialGameState', () => {
+    const started = gameReducer(initialGameState, {
+      type: 'START_GAME',
+      players,
+    });
+    const reset = gameReducer(started, { type: 'RESET_GAME' });
+
+    expect(reset).toEqual(initialGameState);
+  });
+});

@@ -56,6 +56,7 @@ npm test
 ```
 
 Os testes cobrem:
+
 - Sorteio do número secreto nos limites (1 e 60)
 - Escolha de números nos extremos (1 e 60)
 - Desabilitar números corretamente acima/abaixo do secreto

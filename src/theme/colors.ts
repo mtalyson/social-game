@@ -35,4 +35,5 @@ export const colors = {
   gradientPrimary: ['#E6A817', '#FF6B35'] as const,
   gradientDark: ['#0A0A12', '#14142B'] as const,
   gradientDanger: ['#FF4455', '#FF6B35'] as const,
+  gradientDisabled: ['#2A2A4A', '#1E1E3A'] as const,
 } as const;
