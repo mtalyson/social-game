@@ -1,19 +1,14 @@
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-  useCallback,
-} from 'react';
+import React, { createContext, useReducer, useCallback } from 'react';
 import type { IPlayer } from '@/types/game/interfaces/game';
 import type { IGameContextValue } from '@/types/game/interfaces/gameContexts';
 import { EGamePhase, EGameActionType } from '@/types/game/enums/game';
 import {
   gameReducer,
   initialGameState,
-} from '@/features/game/domain/gameReducer/gameReducer';
-import { getAvailableBounds } from '@/features/game/domain/gameRules/gameRules';
+} from '@/domain/gameReducer/gameReducer';
+import { getAvailableBounds } from '@/domain/gameRules/gameRules';
 
-const GameContext = createContext<IGameContextValue | null>(null);
+export const GameContext = createContext<IGameContextValue | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(gameReducer, initialGameState);
@@ -67,12 +62,4 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
-}
-
-export function useGame(): IGameContextValue {
-  const context = useContext(GameContext);
-  if (!context) {
-    throw new Error('useGame must be used within a GameProvider');
-  }
-  return context;
 }

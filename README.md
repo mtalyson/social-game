@@ -50,7 +50,7 @@ npx expo start --ios
 
 ## 🧪 Testes e Qualidade
 
-A lógica do jogo é coberta por **62 testes unitários** em Jest (3 suítes colocalizadas em `src/features/game/domain/`):
+A lógica do jogo é coberta por **65 testes unitários** em Jest (3 suítes colocalizadas em `src/domain/`):
 
 ```bash
 # Testes unitários
@@ -76,43 +76,57 @@ social-game/
 ├── public/
 │   └── assets/                         # Ícones, splash screen e favicon
 ├── src/
-│   ├── app/                            # Telas e rotas (Expo Router)
+│   ├── app/                            # Rotas e layouts (Expo Router, apenas re-exportam screens)
 │   │   ├── _layout.tsx                 # Root layout (Stack Navigator + GameProvider)
-│   │   ├── (home)/
-│   │   │   └── index.tsx               # HomeScreen
+│   │   ├── (home)/index.tsx
 │   │   ├── (game)/
-│   │   │   ├── setup.tsx               # SetupScreen (cadastro de jogadores)
-│   │   │   ├── game.tsx                # GameScreen (grid de números)
-│   │   │   └── round-result.tsx        # RoundResultScreen (quem bebe)
-│   │   └── (info)/
-│   │       └── how-to-play.tsx         # HowToPlayScreen (regras)
+│   │   │   ├── setup.tsx
+│   │   │   ├── game.tsx
+│   │   │   └── round-result.tsx
+│   │   └── (info)/how-to-play.tsx
+│   ├── screens/                        # Telas e estilos separados por contexto
+│   │   ├── home/
+│   │   │   ├── homeScreen.tsx
+│   │   │   └── styles.ts
+│   │   ├── setup/
+│   │   │   ├── setupScreen.tsx
+│   │   │   └── styles.ts
+│   │   ├── game/
+│   │   │   ├── gameScreen.tsx
+│   │   │   └── styles.ts
+│   │   ├── roundResult/
+│   │   │   ├── roundResultScreen.tsx
+│   │   │   └── styles.ts
+│   │   └── howToPlay/
+│   │       ├── howToPlayScreen.tsx
+│   │       └── styles.ts
 │   ├── components/
-│   │   └── ui/
-│   │       └── primaryButton.tsx       # Botão reutilizável com gradiente e ícone
+│   │   ├── ui/
+│   │   │   └── primaryButton.tsx       # Botão reutilizável com gradiente e ícone
+│   │   └── game/                       # Componentes específicos do jogo
+│   │       ├── confirmGuessModal.tsx
+│   │       ├── numberCell.tsx
+│   │       ├── numberGrid.tsx
+│   │       └── playerTurnBanner.tsx
+│   ├── contexts/
+│   │   └── gameContext.tsx             # GameContext + GameProvider
+│   ├── hooks/
+│   │   └── useGame.ts                  # Hook useGame
+│   ├── domain/                         # Domínio puro + testes colocalizados
+│   │   ├── gameEngine/
+│   │   │   ├── gameEngine.ts
+│   │   │   └── gameEngine.test.ts
+│   │   ├── gameReducer/
+│   │   │   ├── gameReducer.ts
+│   │   │   └── gameReducer.test.ts
+│   │   └── gameRules/
+│   │       ├── gameRules.ts
+│   │       └── gameRules.test.ts
 │   ├── constants/                      # Constantes separadas por contexto
 │   │   ├── game/
 │   │   │   └── game.ts                 # Limites e configuração do grid
 │   │   └── rules/
 │   │       └── rules.ts                # Conteúdo dos cards de regras
-│   ├── features/
-│   │   └── game/
-│   │       ├── components/             # Componentes específicos do jogo
-│   │       │   ├── confirmGuessModal.tsx
-│   │       │   ├── numberCell.tsx
-│   │       │   ├── numberGrid.tsx
-│   │       │   └── playerTurnBanner.tsx
-│   │       ├── context/
-│   │       │   └── gameContext.tsx     # GameProvider + hook useGame
-│   │       └── domain/                 # Domínio puro + testes colocalizados
-│   │           ├── gameEngine/
-│   │           │   ├── gameEngine.ts
-│   │           │   └── gameEngine.test.ts
-│   │           ├── gameReducer/
-│   │           │   ├── gameReducer.ts
-│   │           │   └── gameReducer.test.ts
-│   │           └── gameRules/
-│   │               ├── gameRules.ts
-│   │               └── gameRules.test.ts
 │   ├── theme/                          # Design tokens
 │   │   ├── colors.ts
 │   │   ├── typography.ts

@@ -28,7 +28,7 @@ function createTestState(
     disabledNumbers: new Set<number>(),
     roundStarter: players[0],
     roundNumber: 1,
-    lastError: null,
+    scoreboard: { '1': 0, '2': 0, '3': 0 },
     ...overrides,
   };
 }
@@ -308,9 +308,21 @@ describe('createInitialGameState', () => {
     expect(state.secretNumber).toBeLessThanOrEqual(60);
     expect(state.disabledNumbers.size).toBe(0);
     expect(state.roundStarter.id).toBe('1');
-    expect(state.lastError).toBeNull();
+    expect(state.scoreboard).toEqual({ '1': 0, '2': 0, '3': 0 });
     expect(state.phase).toBe('playing');
     expect(state.roundNumber).toBe(1);
+  });
+
+  it('should throw if players count is below MIN_PLAYERS', () => {
+    expect(() => createInitialGameState([players[0]])).toThrow();
+  });
+
+  it('should throw if players count exceeds MAX_PLAYERS', () => {
+    const tooMany = Array.from({ length: 13 }, (_, i) => ({
+      id: `${i + 1}`,
+      name: `Player ${i + 1}`,
+    }));
+    expect(() => createInitialGameState(tooMany)).toThrow();
   });
 });
 
@@ -324,6 +336,7 @@ describe('createNextRoundState', () => {
       disabledNumbers: new Set<number>(),
       roundStarter: players[0],
       roundNumber: 1,
+      scoreboard: { '1': 0, '2': 1, '3': 0 },
       roundResult: {
         loser: players[1],
         reason: 'guessedSecret',
@@ -340,6 +353,7 @@ describe('createNextRoundState', () => {
     expect(nextState.disabledNumbers.size).toBe(0);
     expect(nextState.phase).toBe('playing');
     expect(nextState.roundNumber).toBe(2);
+    expect(nextState.scoreboard).toEqual({ '1': 0, '2': 1, '3': 0 });
     expect(nextState.secretNumber).toBeGreaterThanOrEqual(1);
     expect(nextState.secretNumber).toBeLessThanOrEqual(60);
   });

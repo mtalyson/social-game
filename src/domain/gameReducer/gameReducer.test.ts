@@ -11,7 +11,7 @@ const players: IPlayer[] = [
 ];
 
 describe('gameReducer', () => {
-  it('START_GAME transitions from setup to playing', () => {
+  it('START_GAME transitions from setup to playing with zeroed scoreboard', () => {
     const next = gameReducer(initialGameState, {
       type: 'START_GAME',
       players,
@@ -23,7 +23,7 @@ describe('gameReducer', () => {
     if (next.phase === 'playing') {
       expect(next.currentPlayerIndex).toBe(0);
       expect(next.disabledNumbers.size).toBe(0);
-      expect(next.lastError).toBeNull();
+      expect(next.scoreboard).toEqual({ '1': 0, '2': 0 });
     }
   });
 
@@ -45,7 +45,7 @@ describe('gameReducer', () => {
       disabledNumbers: new Set(),
       roundStarter: players[0],
       roundNumber: 1,
-      lastError: null,
+      scoreboard: { '1': 0, '2': 0 },
     };
 
     const next = gameReducer(playingState, { type: 'MAKE_GUESS', number: 20 });
@@ -54,11 +54,30 @@ describe('gameReducer', () => {
     if (next.phase === 'playing') {
       expect(next.currentPlayerIndex).toBe(1);
       expect(next.disabledNumbers.has(20)).toBe(true);
-      expect(next.lastError).toBeNull();
     }
   });
 
-  it('MAKE_GUESS records lastError on invalid guess instead of throwing', () => {
+  it('MAKE_GUESS increments loser scoreboard when round ends', () => {
+    const playingState: IPlayingGameState = {
+      phase: 'playing',
+      players,
+      currentPlayerIndex: 1,
+      secretNumber: 40,
+      disabledNumbers: new Set(),
+      roundStarter: players[0],
+      roundNumber: 1,
+      scoreboard: { '1': 0, '2': 0 },
+    };
+
+    const next = gameReducer(playingState, { type: 'MAKE_GUESS', number: 40 });
+
+    expect(next.phase).toBe('roundResult');
+    if (next.phase === 'roundResult') {
+      expect(next.scoreboard).toEqual({ '1': 0, '2': 1 });
+    }
+  });
+
+  it('MAKE_GUESS returns previous state on invalid guess', () => {
     const playingState: IPlayingGameState = {
       phase: 'playing',
       players,
@@ -67,16 +86,12 @@ describe('gameReducer', () => {
       disabledNumbers: new Set([10]),
       roundStarter: players[0],
       roundNumber: 1,
-      lastError: null,
+      scoreboard: { '1': 0, '2': 0 },
     };
 
     const next = gameReducer(playingState, { type: 'MAKE_GUESS', number: 10 });
 
-    expect(next.phase).toBe('playing');
-    if (next.phase === 'playing') {
-      expect(next.lastError).toContain('10');
-      expect(next.currentPlayerIndex).toBe(0);
-    }
+    expect(next).toBe(playingState);
   });
 
   it('NEXT_ROUND ignores action when phase is not roundResult', () => {
@@ -84,7 +99,7 @@ describe('gameReducer', () => {
     expect(next).toBe(initialGameState);
   });
 
-  it('NEXT_ROUND starts a new round with loser as starter', () => {
+  it('NEXT_ROUND starts a new round preserving scoreboard and making loser starter', () => {
     const roundResultState: IRoundResultGameState = {
       phase: 'roundResult',
       players,
@@ -93,6 +108,7 @@ describe('gameReducer', () => {
       disabledNumbers: new Set([1, 2, 3]),
       roundStarter: players[0],
       roundNumber: 1,
+      scoreboard: { '1': 0, '2': 1 },
       roundResult: {
         loser: players[1],
         reason: 'guessedSecret',
@@ -110,6 +126,7 @@ describe('gameReducer', () => {
       expect(next.roundStarter.id).toBe('2');
       expect(next.currentPlayerIndex).toBe(1);
       expect(next.disabledNumbers.size).toBe(0);
+      expect(next.scoreboard).toEqual({ '1': 0, '2': 1 });
     }
   });
 

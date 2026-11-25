@@ -6,7 +6,12 @@ import type {
   IGuessOutcome,
 } from '@/types/game/interfaces/game';
 import { EGamePhase, ELossReason } from '@/types/game/enums/game';
-import { MIN_NUMBER, MAX_NUMBER } from '@/constants/game/game';
+import {
+  MIN_NUMBER,
+  MAX_NUMBER,
+  MIN_PLAYERS,
+  MAX_PLAYERS,
+} from '@/constants/game/game';
 import {
   isNumberAvailable,
   getNumbersToDisable,
@@ -20,6 +25,16 @@ export class InvalidGuessError extends Error {
     super(message);
     this.name = 'InvalidGuessError';
   }
+}
+
+function incrementScore(
+  scoreboard: Record<string, number>,
+  loserId: string,
+): Record<string, number> {
+  return {
+    ...scoreboard,
+    [loserId]: (scoreboard[loserId] ?? 0) + 1,
+  };
 }
 
 export function processGuess(
@@ -59,6 +74,7 @@ export function processGuess(
         roundStarter: state.roundStarter,
         roundResult,
         roundNumber: state.roundNumber,
+        scoreboard: incrementScore(state.scoreboard, currentPlayer.id),
       },
       roundResult,
     };
@@ -97,6 +113,7 @@ export function processGuess(
         roundStarter: state.roundStarter,
         roundResult,
         roundNumber: state.roundNumber,
+        scoreboard: incrementScore(state.scoreboard, state.roundStarter.id),
       },
       roundResult,
     };
@@ -106,8 +123,9 @@ export function processGuess(
   const singleRemaining = checkSingleRemaining(newDisabled);
 
   if (singleRemaining !== null) {
+    const loser = state.players[nextPlayerIndex];
     const roundResult: IRoundResult = {
-      loser: state.players[nextPlayerIndex],
+      loser,
       reason: ELossReason.LAST_NUMBER_REMAINING,
       secretNumber: state.secretNumber,
       roundStarter: state.roundStarter,
@@ -124,6 +142,7 @@ export function processGuess(
         roundStarter: state.roundStarter,
         roundResult,
         roundNumber: state.roundNumber,
+        scoreboard: incrementScore(state.scoreboard, loser.id),
       },
       roundResult,
     };
@@ -134,14 +153,24 @@ export function processGuess(
       ...state,
       disabledNumbers: newDisabled,
       currentPlayerIndex: nextPlayerIndex,
-      lastError: null,
     },
     roundResult: null,
   };
 }
 
 export function createInitialGameState(players: IPlayer[]): IPlayingGameState {
+  if (players.length < MIN_PLAYERS || players.length > MAX_PLAYERS) {
+    throw new Error(
+      `Game requires between ${MIN_PLAYERS} and ${MAX_PLAYERS} players.`,
+    );
+  }
+
   const secretNumber = getRandomSecretNumber();
+  const scoreboard: Record<string, number> = {};
+  for (const player of players) {
+    scoreboard[player.id] = 0;
+  }
+
   return {
     phase: EGamePhase.PLAYING,
     players,
@@ -150,7 +179,7 @@ export function createInitialGameState(players: IPlayer[]): IPlayingGameState {
     disabledNumbers: new Set<number>(),
     roundStarter: players[0],
     roundNumber: 1,
-    lastError: null,
+    scoreboard,
   };
 }
 
@@ -169,6 +198,6 @@ export function createNextRoundState(
     disabledNumbers: new Set<number>(),
     roundStarter: loser,
     roundNumber: state.roundNumber + 1,
-    lastError: null,
+    scoreboard: state.scoreboard,
   };
 }
