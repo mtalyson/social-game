@@ -1,13 +1,6 @@
-/**
- * Root layout for Expo Router.
- *
- * Wraps all screens with the GameProvider and configures the Stack Navigator
- * with the dark bar theme. All screens use headerShown: false for custom headers.
- */
-
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { GameProvider } from '@/hooks/useGame';
+import { GameProvider } from '@/contexts/gameContext';
 import { colors } from '@/theme/colors';
 
 export default function RootLayout() {
@@ -21,23 +14,23 @@ export default function RootLayout() {
           animation: 'slide_from_right',
         }}
       >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="setup" />
+        <Stack.Screen name="(home)/index" />
+        <Stack.Screen name="(game)/setup" />
         <Stack.Screen
-          name="game"
+          name="(game)/game"
           options={{
-            gestureEnabled: false, // Prevent accidental back swipe during gameplay
+            gestureEnabled: false,
           }}
         />
         <Stack.Screen
-          name="round-result"
+          name="(game)/round-result"
           options={{
             gestureEnabled: false,
             animation: 'fade',
           }}
         />
         <Stack.Screen
-          name="how-to-play"
+          name="(info)/how-to-play"
           options={{
             animation: 'slide_from_bottom',
             presentation: 'modal',
