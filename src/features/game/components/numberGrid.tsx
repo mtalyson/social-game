@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { NumberCell } from './numberCell';
 import type { INumberGridProps } from '@/types/game/interfaces/game';
 import {
@@ -38,8 +39,9 @@ export function NumberGrid({
     <View style={styles.container}>
       {minAvailable !== null && maxAvailable !== null && (
         <View style={styles.rangeIndicator}>
+          <Ionicons name="locate" size={16} color={colors.primary} />
           <Text style={styles.rangeText}>
-            🎯 Pode ser entre{' '}
+            Pode ser entre{' '}
             <Text style={styles.rangeHighlight}>{minAvailable}</Text>
             {' e '}
             <Text style={styles.rangeHighlight}>{maxAvailable}</Text>
@@ -73,11 +75,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rangeIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
     backgroundColor: colors.primaryMuted,
     borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.xs,
     paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
     alignSelf: 'center',
     borderWidth: 1,
     borderColor: colors.primaryDark,

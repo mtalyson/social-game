@@ -3,8 +3,10 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
+  View,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import type { IPrimaryButtonProps } from '@/types/ui/interfaces/ui';
 import { EButtonVariant } from '@/types/ui/enums/ui';
 import { colors } from '@/theme/colors';
@@ -15,6 +17,7 @@ export function PrimaryButton({
   title,
   onPress,
   variant = EButtonVariant.PRIMARY,
+  iconName,
   disabled = false,
   loading = false,
   style,
@@ -34,6 +37,14 @@ export function PrimaryButton({
         return ['transparent', 'transparent'] as const;
     }
   };
+
+  const contentColor = isDisabled
+    ? colors.textMuted
+    : variant === 'primary'
+      ? colors.textOnPrimary
+      : variant === 'ghost'
+        ? colors.primary
+        : colors.textPrimary;
 
   return (
     <TouchableOpacity
@@ -58,16 +69,21 @@ export function PrimaryButton({
         {loading ? (
           <ActivityIndicator color={colors.textPrimary} />
         ) : (
-          <Text
-            style={[
-              styles.text,
-              variant === 'primary' && !isDisabled && styles.textPrimary,
-              variant === 'ghost' && styles.textGhost,
-              isDisabled && styles.textDisabled,
-            ]}
-          >
-            {title}
-          </Text>
+          <View style={styles.contentRow}>
+            <Text
+              style={[
+                styles.text,
+                variant === 'primary' && !isDisabled && styles.textPrimary,
+                variant === 'ghost' && styles.textGhost,
+                isDisabled && styles.textDisabled,
+              ]}
+            >
+              {title}
+            </Text>
+            {iconName && (
+              <Ionicons name={iconName} size={20} color={contentColor} />
+            )}
+          </View>
         )}
       </LinearGradient>
     </TouchableOpacity>
@@ -82,6 +98,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 56,
+  },
+  contentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
   },
   ghostButton: {
     borderWidth: 1,
