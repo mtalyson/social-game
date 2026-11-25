@@ -78,3 +78,16 @@ export function checkTwoAdjacentRemaining(
 
   return null;
 }
+
+export function checkSingleRemaining(
+  disabledNumbers: Set<number>,
+): number | null {
+  const bounds = getAvailableBounds(disabledNumbers);
+  if (!bounds) return null;
+
+  if (bounds.min === bounds.max) {
+    return bounds.min;
+  }
+
+  return null;
+}

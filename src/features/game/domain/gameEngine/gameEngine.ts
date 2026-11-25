@@ -11,6 +11,7 @@ import {
   isNumberAvailable,
   getNumbersToDisable,
   checkTwoAdjacentRemaining,
+  checkSingleRemaining,
   getRandomSecretNumber,
 } from '../gameRules/gameRules';
 
@@ -63,6 +64,9 @@ export function processGuess(
     };
   }
 
+  const wasTwoAdjacentRemaining =
+    checkTwoAdjacentRemaining(state.disabledNumbers) !== null;
+
   const numbersToDisable = getNumbersToDisable(
     guess,
     state.secretNumber,
@@ -74,9 +78,7 @@ export function processGuess(
     newDisabled.add(n);
   }
 
-  const twoAdjacent = checkTwoAdjacentRemaining(newDisabled);
-
-  if (twoAdjacent) {
+  if (wasTwoAdjacentRemaining) {
     const roundResult: IRoundResult = {
       loser: state.roundStarter,
       reason: ELossReason.REVEALED_BY_ELIMINATION,
@@ -101,6 +103,31 @@ export function processGuess(
   }
 
   const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+  const singleRemaining = checkSingleRemaining(newDisabled);
+
+  if (singleRemaining !== null) {
+    const roundResult: IRoundResult = {
+      loser: state.players[nextPlayerIndex],
+      reason: ELossReason.LAST_NUMBER_REMAINING,
+      secretNumber: state.secretNumber,
+      roundStarter: state.roundStarter,
+      lastGuess: guess,
+    };
+
+    return {
+      newState: {
+        phase: EGamePhase.ROUND_RESULT,
+        players: state.players,
+        currentPlayerIndex: state.currentPlayerIndex,
+        secretNumber: state.secretNumber,
+        disabledNumbers: newDisabled,
+        roundStarter: state.roundStarter,
+        roundResult,
+        roundNumber: state.roundNumber,
+      },
+      roundResult,
+    };
+  }
 
   return {
     newState: {

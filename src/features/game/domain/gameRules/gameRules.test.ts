@@ -5,6 +5,7 @@ import {
   isNumberAvailable,
   getNumbersToDisable,
   checkTwoAdjacentRemaining,
+  checkSingleRemaining,
 } from './gameRules';
 import { MIN_NUMBER, MAX_NUMBER } from '@/constants/game/game';
 
@@ -208,5 +209,25 @@ describe('checkTwoAdjacentRemaining', () => {
       if (i !== 18 && i !== 19 && i !== 20) disabled.add(i);
     }
     expect(checkTwoAdjacentRemaining(disabled)).toBeNull();
+  });
+});
+
+describe('checkSingleRemaining', () => {
+  it('should return the number when only 1 number remains', () => {
+    const disabled = new Set<number>();
+    for (let i = 2; i <= 60; i++) disabled.add(i);
+    expect(checkSingleRemaining(disabled)).toBe(1);
+  });
+
+  it('should return null when two or more numbers remain', () => {
+    const disabled = new Set<number>();
+    for (let i = 3; i <= 60; i++) disabled.add(i);
+    expect(checkSingleRemaining(disabled)).toBeNull();
+  });
+
+  it('should return null when no numbers remain', () => {
+    const disabled = new Set<number>();
+    for (let i = 1; i <= 60; i++) disabled.add(i);
+    expect(checkSingleRemaining(disabled)).toBeNull();
   });
 });

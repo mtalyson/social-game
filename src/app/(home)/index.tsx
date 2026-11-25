@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '@/components/ui/primaryButton';
+import { useGame } from '@/features/game/context/gameContext';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing } from '@/theme/spacing';
@@ -10,6 +11,7 @@ import { useEffect, useState } from 'react';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { resetGame } = useGame();
 
   const [fadeAnim] = useState(() => new Animated.Value(0));
   const [slideAnim] = useState(() => new Animated.Value(30));
@@ -50,7 +52,7 @@ export default function HomeScreen() {
           <Text style={styles.title}>Jogo do{'\n'}Número</Text>
 
           <Text style={styles.subtitle}>
-            Escolha um número. Não acerte o secreto.{'\n'}
+            Escolha um número de 1 a 60{'\n'}
             Quem acertar... bebe!
           </Text>
         </Animated.View>
@@ -58,8 +60,11 @@ export default function HomeScreen() {
         <View style={styles.buttonsContainer}>
           <PrimaryButton
             title="Novo Jogo"
-            onPress={() => router.push('/setup')}
             variant="primary"
+            onPress={() => {
+              resetGame();
+              router.push('/setup');
+            }}
           />
 
           <View style={styles.buttonSpacer} />

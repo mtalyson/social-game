@@ -54,11 +54,22 @@ export default function GameScreen() {
     return () => backHandler.remove();
   }, [resetGame, router]);
 
-  const handleSelectNumber = useCallback((num: number) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  const isTwoNumbersRemaining =
+    availableBounds !== null && availableBounds.max - availableBounds.min === 1;
 
-    setConfirmNumber(num);
-  }, []);
+  const handleSelectNumber = useCallback(
+    (num: number) => {
+      if (isTwoNumbersRemaining) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setConfirmNumber(num);
+        return;
+      }
+
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      makeGuess(num);
+    },
+    [isTwoNumbersRemaining, makeGuess],
+  );
 
   const handleConfirmGuess = useCallback(() => {
     if (confirmNumber === null) return;
@@ -111,10 +122,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: spacing.lg,
-    paddingBottom: spacing.huge,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xl,
   },
   gridContainer: {
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
   },
 });

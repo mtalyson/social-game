@@ -22,14 +22,15 @@ import { spacing, borderRadius } from '@/theme/spacing';
 
 export default function SetupScreen() {
   const router = useRouter();
-  const { startGame } = useGame();
+  const { state, startGame, resetGame } = useGame();
 
-  const [players, setPlayers] = useState<IPlayer[]>([]);
+  const [players, setPlayers] = useState<IPlayer[]>(state.players);
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
 
+  const hasPendingInput = inputValue.trim().length > 0;
   const canAddMore = players.length < MAX_PLAYERS;
-  const canStart = players.length >= MIN_PLAYERS;
+  const canStart = players.length >= MIN_PLAYERS && !hasPendingInput;
 
   const addPlayer = () => {
     const name = inputValue.trim();
@@ -86,7 +87,14 @@ export default function SetupScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={() => {
+              if (router.canGoBack()) {
+                router.back();
+              } else {
+                resetGame();
+                router.replace('/');
+              }
+            }}
             style={styles.backButton}
           >
             <Text style={styles.backText}>← Voltar</Text>
@@ -139,7 +147,9 @@ export default function SetupScreen() {
           {players.length} jogador{players.length !== 1 ? 'es' : ''}
           {players.length < MIN_PLAYERS
             ? ` — falta${MIN_PLAYERS - players.length > 1 ? 'm' : ''} ${MIN_PLAYERS - players.length}`
-            : ''}
+            : hasPendingInput
+              ? ' — adicione ou limpe o nome digitado'
+              : ''}
         </Text>
 
         <View style={styles.footer}>
@@ -191,11 +201,13 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    minHeight: 50,
     backgroundColor: colors.surfaceLight,
     borderRadius: borderRadius.md,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
     ...typography.body,
+    lineHeight: undefined,
     color: colors.textPrimary,
     borderWidth: 1,
     borderColor: colors.border,
