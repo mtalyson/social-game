@@ -38,7 +38,7 @@ export interface IPlayingGameState {
   disabledNumbers: Set<number>;
   roundStarter: IPlayer;
   roundNumber: number;
-  lastError: string | null;
+  scoreboard: Record<string, number>;
 }
 
 export interface IRoundResultGameState {
@@ -50,6 +50,7 @@ export interface IRoundResultGameState {
   roundStarter: IPlayer;
   roundResult: IRoundResult;
   roundNumber: number;
+  scoreboard: Record<string, number>;
 }
 
 export type TGameState =

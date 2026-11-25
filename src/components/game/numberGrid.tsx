@@ -12,7 +12,7 @@ import { typography } from '@/theme/typography';
 import { spacing, borderRadius } from '@/theme/spacing';
 
 const GRID_ROWS = Math.ceil(GRID_NUMBERS.length / GRID_COLUMNS);
-const RESERVED_VERTICAL_SPACE = 245;
+const RESERVED_VERTICAL_SPACE = 265;
 
 export function NumberGrid({
   disabledNumbers,

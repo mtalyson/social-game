@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { GameProvider } from '@/features/game/context/gameContext';
+import { GameProvider } from '@/contexts/gameContext';
 import { colors } from '@/theme/colors';
 
 export default function RootLayout() {

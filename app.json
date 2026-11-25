@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "Perdeu, Bebeu!",
-    "slug": "drink-game",
+    "slug": "perdeu-bebeu",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./public/assets/images/icon.png",
-    "scheme": "drinkgame",
+    "scheme": "perdeubebeu",
     "userInterfaceStyle": "dark",
     "ios": {
       "icon": "./public/assets/expo.icon"

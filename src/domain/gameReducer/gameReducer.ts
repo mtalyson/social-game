@@ -33,11 +33,8 @@ export function gameReducer(
       try {
         const { newState } = processGuess(state, action.number);
         return newState;
-      } catch (error) {
-        return {
-          ...state,
-          lastError: error instanceof Error ? error.message : 'Invalid guess.',
-        };
+      } catch {
+        return state;
       }
     }
 
