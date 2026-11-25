@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { PrimaryButton } from '@/components/ui/primaryButton';
 import { useGame } from '@/features/game/context/gameContext';
 import type { IPlayer } from '@/types/game/interfaces/game';
@@ -74,7 +75,7 @@ export default function SetupScreen() {
         style={styles.removeButton}
         accessibilityLabel={`Remover ${item.name}`}
       >
-        <Text style={styles.removeText}>✕</Text>
+        <Ionicons name="close" size={18} color={colors.danger} />
       </TouchableOpacity>
     </View>
   );
@@ -97,7 +98,8 @@ export default function SetupScreen() {
             }}
             style={styles.backButton}
           >
-            <Text style={styles.backText}>← Voltar</Text>
+            <Ionicons name="arrow-back" size={18} color={colors.primary} />
+            <Text style={styles.backText}>Voltar</Text>
           </TouchableOpacity>
           <Text style={styles.title}>Quem vai jogar?</Text>
           <Text style={styles.subtitle}>
@@ -126,7 +128,15 @@ export default function SetupScreen() {
             onPress={addPlayer}
             disabled={!inputValue.trim() || !canAddMore}
           >
-            <Text style={styles.addButtonText}>+</Text>
+            <Ionicons
+              name="add"
+              size={26}
+              color={
+                !inputValue.trim() || !canAddMore
+                  ? colors.textMuted
+                  : colors.textOnPrimary
+              }
+            />
           </TouchableOpacity>
         </View>
 
@@ -154,7 +164,8 @@ export default function SetupScreen() {
 
         <View style={styles.footer}>
           <PrimaryButton
-            title="Começar! 🍺"
+            title="Começar!"
+            iconName="beer"
             onPress={handleStartGame}
             disabled={!canStart}
             variant="primary"
@@ -179,6 +190,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xxl,
   },
   backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
     marginBottom: spacing.lg,
   },
   backText: {

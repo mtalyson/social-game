@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { PrimaryButton } from '@/components/ui/primaryButton';
 import type { IConfirmGuessModalProps } from '@/types/game/interfaces/game';
 import { colors } from '@/theme/colors';
@@ -20,7 +21,12 @@ export function ConfirmGuessModal({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalEmoji}>🤔</Text>
+          <Ionicons
+            name="help-circle"
+            size={48}
+            color={colors.primary}
+            style={styles.modalIcon}
+          />
           <Text style={styles.modalTitle}>Tem certeza?</Text>
           <Text style={styles.modalDescription}>
             Você quer escolher o número{' '}
@@ -66,8 +72,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  modalEmoji: {
-    fontSize: 48,
+  modalIcon: {
     marginBottom: spacing.md,
   },
   modalTitle: {

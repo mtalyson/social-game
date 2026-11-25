@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { PrimaryButton } from '@/components/ui/primaryButton';
 import { useGame } from '@/features/game/context/gameContext';
 import { colors } from '@/theme/colors';
@@ -47,9 +48,14 @@ export default function HomeScreen() {
             },
           ]}
         >
-          <Text style={styles.emoji}>🍺</Text>
+          <Ionicons
+            name="beer"
+            size={76}
+            color={colors.primary}
+            style={styles.heroIcon}
+          />
 
-          <Text style={styles.title}>Jogo do{'\n'}Número</Text>
+          <Text style={styles.title}>Perdeu,{'\n'}Bebeu!</Text>
 
           <Text style={styles.subtitle}>
             Escolha um número de 1 a 60{'\n'}
@@ -76,7 +82,10 @@ export default function HomeScreen() {
           />
         </View>
 
-        <Text style={styles.footer}>Um jogo para amigos no bar 🍻</Text>
+        <View style={styles.footerRow}>
+          <Text style={styles.footer}>Um jogo para amigos no bar</Text>
+          <Ionicons name="beer-outline" size={16} color={colors.textMuted} />
+        </View>
       </SafeAreaView>
     </LinearGradient>
   );
@@ -96,8 +105,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.huge,
   },
-  emoji: {
-    fontSize: 80,
+  heroIcon: {
     marginBottom: spacing.lg,
   },
   title: {
@@ -120,9 +128,14 @@ const styles = StyleSheet.create({
   buttonSpacer: {
     height: spacing.md,
   },
+  footerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.huge,
+  },
   footer: {
     ...typography.caption,
     color: colors.textMuted,
-    marginTop: spacing.huge,
   },
 });

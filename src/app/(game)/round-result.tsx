@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ComponentProps } from 'react';
 import { View, Text, StyleSheet, Animated, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
+import { Ionicons } from '@expo/vector-icons';
 import { PrimaryButton } from '@/components/ui/primaryButton';
 import { useGame } from '@/features/game/context/gameContext';
 import { EGamePhase, ELossReason } from '@/types/game/enums/game';
@@ -47,21 +48,24 @@ export default function RoundResultScreen() {
 
   if (!result) return null;
 
-  const reasonConfig = (() => {
+  const reasonConfig: {
+    icon: ComponentProps<typeof Ionicons>['name'];
+    text: string;
+  } = (() => {
     switch (result.reason) {
       case ELossReason.GUESSED_SECRET:
         return {
-          emoji: '🎯',
+          icon: 'locate',
           text: `${result.loser.name} escolheu o número sorteado!`,
         };
       case ELossReason.LAST_NUMBER_REMAINING:
         return {
-          emoji: '💣',
+          icon: 'alert-circle',
           text: `Sobrou apenas o número ${result.secretNumber}! ${result.loser.name} era o jogador da vez e não teve outra escolha!`,
         };
       case ELossReason.REVEALED_BY_ELIMINATION:
         return {
-          emoji: '🔍',
+          icon: 'search',
           text: `O palpite revelou que o número sorteado só podia ser ${result.secretNumber}. Quem iniciou a rodada paga!`,
         };
     }
@@ -102,7 +106,10 @@ export default function RoundResultScreen() {
           ]}
         >
           <Text style={styles.title}>{result.loser.name}</Text>
-          <Text style={styles.subtitle}>Bebe!</Text>
+          <View style={styles.subtitleRow}>
+            <Text style={styles.subtitle}>Bebe!</Text>
+            <Ionicons name="beer" size={26} color={colors.dangerLight} />
+          </View>
 
           <View style={styles.secretContainer}>
             <Text style={styles.secretLabel}>O número sorteado era:</Text>
@@ -111,7 +118,12 @@ export default function RoundResultScreen() {
         </Animated.View>
 
         <Animated.View style={[styles.reasonCard, { opacity: fadeAnim }]}>
-          <Text style={styles.reasonEmoji}>{reasonConfig.emoji}</Text>
+          <Ionicons
+            name={reasonConfig.icon}
+            size={24}
+            color={colors.primary}
+            style={styles.reasonIcon}
+          />
           <Text style={styles.reasonText}>{reasonConfig.text}</Text>
         </Animated.View>
 
@@ -124,7 +136,8 @@ export default function RoundResultScreen() {
 
       <View style={styles.footer}>
         <PrimaryButton
-          title="Próxima Rodada 🔄"
+          title="Próxima Rodada"
+          iconName="refresh"
           onPress={handleNextRound}
           variant="primary"
         />
@@ -132,7 +145,8 @@ export default function RoundResultScreen() {
         <View style={styles.buttonSpacer} />
 
         <PrimaryButton
-          title="Mudar Jogadores 👥"
+          title="Mudar Jogadores"
+          iconName="people"
           onPress={handleChangePlayers}
           variant="secondary"
         />
@@ -172,6 +186,13 @@ const styles = StyleSheet.create({
     color: colors.danger,
     textAlign: 'center',
   },
+  subtitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
   subtitle: {
     ...typography.title,
     color: colors.dangerLight,
@@ -208,8 +229,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  reasonEmoji: {
-    fontSize: 24,
+  reasonIcon: {
     marginRight: spacing.md,
   },
   reasonText: {

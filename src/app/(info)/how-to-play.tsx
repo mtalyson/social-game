@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { PrimaryButton } from '@/components/ui/primaryButton';
 import type { IRuleItem } from '@/types/rules/interfaces/rules';
 import { HOW_TO_PLAY_RULES } from '@/constants/rules/rules';
@@ -8,10 +9,15 @@ import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing, borderRadius } from '@/theme/spacing';
 
-function RuleCard({ emoji, title, description }: IRuleItem) {
+function RuleCard({ icon, title, description }: IRuleItem) {
   return (
     <View style={styles.ruleCard}>
-      <Text style={styles.ruleEmoji}>{emoji}</Text>
+      <Ionicons
+        name={icon}
+        size={26}
+        color={colors.primary}
+        style={styles.ruleIcon}
+      />
       <View style={styles.ruleContent}>
         <Text style={styles.ruleTitle}>{title}</Text>
         <Text style={styles.ruleDescription}>{description}</Text>
@@ -30,7 +36,11 @@ export default function HowToPlayScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>Como Jogar 🎮</Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.title}>Como Jogar</Text>
+          <Ionicons name="game-controller" size={26} color={colors.primary} />
+        </View>
+
         <Text style={styles.subtitle}>
           Um jogo simples para beber com os amigos!
         </Text>
@@ -64,10 +74,15 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xxl,
     paddingBottom: spacing.lg,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
   title: {
     ...typography.title,
     color: colors.textPrimary,
-    marginBottom: spacing.xs,
   },
   subtitle: {
     ...typography.body,
@@ -83,8 +98,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  ruleEmoji: {
-    fontSize: 28,
+  ruleIcon: {
     marginRight: spacing.md,
     marginTop: 2,
   },
