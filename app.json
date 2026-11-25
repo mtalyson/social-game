@@ -3,6 +3,9 @@
     "name": "Perdeu, Bebeu!",
     "slug": "perdeu-bebeu",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "orientation": "portrait",
     "icon": "./public/assets/images/icon.png",
     "scheme": "perdeubebeu",
@@ -37,6 +40,19 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "9d2576d2-6bbf-422c-bcaf-3b1945b76684"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9d2576d2-6bbf-422c-bcaf-3b1945b76684"
     }
   }
 }
