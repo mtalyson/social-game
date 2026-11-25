@@ -10,18 +10,28 @@ import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing, borderRadius } from '@/theme/spacing';
 
+const GRID_ROWS = Math.ceil(GRID_NUMBERS.length / GRID_COLUMNS);
+const RESERVED_VERTICAL_SPACE = 245;
+
 export function NumberGrid({
   disabledNumbers,
   onSelectNumber,
   minAvailable,
   maxAvailable,
 }: INumberGridProps) {
-  const { width } = useWindowDimensions();
-  const availableWidth =
-    width - spacing.lg * 2 - GRID_COLUMNS * GRID_CELL_MARGIN;
+  const { width, height } = useWindowDimensions();
+
+  const maxWidthBased = Math.floor(
+    (width - spacing.lg * 2 - GRID_COLUMNS * GRID_CELL_MARGIN) / GRID_COLUMNS,
+  );
+
+  const maxHeightBased =
+    Math.floor((height - RESERVED_VERTICAL_SPACE) / GRID_ROWS) -
+    GRID_CELL_MARGIN;
+
   const cellSize = Math.max(
-    40,
-    Math.min(56, Math.floor(availableWidth / GRID_COLUMNS)),
+    36,
+    Math.min(54, Math.min(maxWidthBased, maxHeightBased)),
   );
 
   return (
@@ -73,12 +83,13 @@ const styles = StyleSheet.create({
     borderColor: colors.primaryDark,
   },
   rangeText: {
-    ...typography.body,
+    ...typography.caption,
     color: colors.textSecondary,
     textAlign: 'center',
   },
   rangeHighlight: {
     ...typography.bodyBold,
+    fontSize: 16,
     color: colors.primary,
   },
   gridContent: {

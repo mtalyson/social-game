@@ -34,6 +34,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
+  const changePlayers = useCallback(
+    () => dispatch({ type: EGameActionType.CHANGE_PLAYERS }),
+    [],
+  );
+
   const resetGame = useCallback(
     () => dispatch({ type: EGameActionType.RESET_GAME }),
     [],
@@ -55,6 +60,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     startGame,
     makeGuess,
     nextRound,
+    changePlayers,
     resetGame,
     currentPlayer,
     availableBounds,

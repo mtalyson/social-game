@@ -10,16 +10,16 @@ export function PlayerTurnBanner({
   roundNumber,
 }: IPlayerTurnBannerProps) {
   const [fadeAnim] = useState(() => new Animated.Value(0));
-  const [slideAnim] = useState(() => new Animated.Value(-20));
+  const [slideAnim] = useState(() => new Animated.Value(-10));
 
   useEffect(() => {
     fadeAnim.setValue(0);
-    slideAnim.setValue(-20);
+    slideAnim.setValue(-10);
 
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 400,
+        duration: 350,
         useNativeDriver: true,
       }),
       Animated.spring(slideAnim, {
@@ -34,6 +34,7 @@ export function PlayerTurnBanner({
   return (
     <View style={styles.container}>
       <Text style={styles.roundLabel}>Rodada {roundNumber}</Text>
+
       <Animated.View
         style={[
           styles.bannerContent,
@@ -43,7 +44,7 @@ export function PlayerTurnBanner({
           },
         ]}
       >
-        <Text style={styles.turnLabel}>Vez de</Text>
+        <Text style={styles.turnLabel}>Vez de </Text>
         <Text style={styles.playerName} numberOfLines={1}>
           {playerName}
         </Text>
@@ -56,28 +57,31 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.surfaceLight,
     borderRadius: borderRadius.lg,
-    padding: spacing.lg,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: colors.primaryMuted,
+    gap: 8,
   },
   roundLabel: {
     ...typography.caption,
     color: colors.textSecondary,
-    marginBottom: spacing.xs,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
   bannerContent: {
-    alignItems: 'center',
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'center',
   },
   turnLabel: {
     ...typography.body,
     color: colors.textSecondary,
   },
   playerName: {
-    ...typography.title,
+    ...typography.heading,
     color: colors.primary,
-    marginTop: spacing.xs,
+    flexShrink: 1,
   },
 });

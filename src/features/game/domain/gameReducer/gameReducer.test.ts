@@ -113,6 +113,18 @@ describe('gameReducer', () => {
     }
   });
 
+  it('CHANGE_PLAYERS returns to setup preserving players', () => {
+    const started = gameReducer(initialGameState, {
+      type: 'START_GAME',
+      players,
+    });
+    const next = gameReducer(started, { type: 'CHANGE_PLAYERS' });
+
+    expect(next.phase).toBe('setup');
+    expect(next.players).toEqual(players);
+    expect(next.roundNumber).toBe(0);
+  });
+
   it('RESET_GAME returns initialGameState', () => {
     const started = gameReducer(initialGameState, {
       type: 'START_GAME',

@@ -48,6 +48,14 @@ export function gameReducer(
       return createNextRoundState(state);
     }
 
+    case EGameActionType.CHANGE_PLAYERS: {
+      return {
+        phase: EGamePhase.SETUP,
+        players: state.players,
+        roundNumber: 0,
+      };
+    }
+
     case EGameActionType.RESET_GAME: {
       return initialGameState;
     }

@@ -59,6 +59,7 @@ export type TGameAction =
   | { type: typeof EGameActionType.START_GAME; players: IPlayer[] }
   | { type: typeof EGameActionType.MAKE_GUESS; number: number }
   | { type: typeof EGameActionType.NEXT_ROUND }
+  | { type: typeof EGameActionType.CHANGE_PLAYERS }
   | { type: typeof EGameActionType.RESET_GAME };
 
 export interface IGuessOutcome {

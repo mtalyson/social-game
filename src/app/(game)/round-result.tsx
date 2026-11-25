@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Animated, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -12,11 +12,11 @@ import { spacing, borderRadius } from '@/theme/spacing';
 
 export default function RoundResultScreen() {
   const router = useRouter();
-  const { state, nextRound, resetGame } = useGame();
+  const { state, nextRound, changePlayers, resetGame } = useGame();
+  const isLeavingRef = useRef(false);
 
   const [fadeAnim] = useState(() => new Animated.Value(0));
-  const [scaleAnim] = useState(() => new Animated.Value(0.5));
-  const [slideAnim] = useState(() => new Animated.Value(50));
+  const [scaleAnim] = useState(() => new Animated.Value(0.9));
 
   const result =
     state.phase === EGamePhase.ROUND_RESULT ? state.roundResult : null;
@@ -24,56 +24,74 @@ export default function RoundResultScreen() {
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 
-    Animated.sequence([
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          useNativeDriver: true,
-          speed: 8,
-          bounciness: 8,
-        }),
-      ]),
-      Animated.spring(slideAnim, {
-        toValue: 0,
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 450,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
         useNativeDriver: true,
         speed: 10,
-        bounciness: 4,
+        bounciness: 6,
       }),
     ]).start();
-  }, [fadeAnim, scaleAnim, slideAnim]);
+  }, [fadeAnim, scaleAnim]);
 
   useEffect(() => {
-    if (!result) {
+    if (!isLeavingRef.current && state.phase === EGamePhase.SETUP) {
       router.replace('/');
     }
-  }, [result, router]);
+  }, [state.phase, router]);
 
   if (!result) return null;
 
-  const isDirectHit = result.reason === ELossReason.GUESSED_SECRET;
-
-  const reasonText = isDirectHit
-    ? `${result.loser.name} escolheu o número secreto!`
-    : `O palpite revelou que o número secreto só podia ser ${result.secretNumber}. Quem iniciou a rodada paga!`;
+  const reasonConfig = (() => {
+    switch (result.reason) {
+      case ELossReason.GUESSED_SECRET:
+        return {
+          emoji: '🎯',
+          text: `${result.loser.name} escolheu o número sorteado!`,
+        };
+      case ELossReason.LAST_NUMBER_REMAINING:
+        return {
+          emoji: '💣',
+          text: `Sobrou apenas o número ${result.secretNumber}! ${result.loser.name} era o jogador da vez e não teve outra escolha!`,
+        };
+      case ELossReason.REVEALED_BY_ELIMINATION:
+        return {
+          emoji: '🔍',
+          text: `O palpite revelou que o número sorteado só podia ser ${result.secretNumber}. Quem iniciou a rodada paga!`,
+        };
+    }
+  })();
 
   const handleNextRound = () => {
+    isLeavingRef.current = true;
     nextRound();
     router.replace('/game');
   };
 
+  const handleChangePlayers = () => {
+    isLeavingRef.current = true;
+    changePlayers();
+    router.replace('/setup');
+  };
+
   const handleEndGame = () => {
+    isLeavingRef.current = true;
     resetGame();
     router.replace('/');
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <Animated.View
           style={[
             styles.resultCard,
@@ -83,43 +101,26 @@ export default function RoundResultScreen() {
             },
           ]}
         >
-          <Text style={styles.emoji}>🍺</Text>
           <Text style={styles.title}>{result.loser.name}</Text>
-          <Text style={styles.subtitle}>bebe!</Text>
+          <Text style={styles.subtitle}>Bebe!</Text>
 
           <View style={styles.secretContainer}>
-            <Text style={styles.secretLabel}>O número secreto era</Text>
+            <Text style={styles.secretLabel}>O número sorteado era:</Text>
             <Text style={styles.secretNumber}>{result.secretNumber}</Text>
           </View>
         </Animated.View>
 
-        <Animated.View
-          style={[
-            styles.reasonCard,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <Text style={styles.reasonEmoji}>{isDirectHit ? '🎯' : '🔍'}</Text>
-          <Text style={styles.reasonText}>{reasonText}</Text>
+        <Animated.View style={[styles.reasonCard, { opacity: fadeAnim }]}>
+          <Text style={styles.reasonEmoji}>{reasonConfig.emoji}</Text>
+          <Text style={styles.reasonText}>{reasonConfig.text}</Text>
         </Animated.View>
 
-        <Animated.View
-          style={[
-            styles.nextRoundInfo,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
+        <Animated.View style={[styles.nextRoundInfo, { opacity: fadeAnim }]}>
           <Text style={styles.nextRoundText}>
             {result.loser.name} começa a próxima rodada
           </Text>
         </Animated.View>
-      </View>
+      </ScrollView>
 
       <View style={styles.footer}>
         <PrimaryButton
@@ -127,7 +128,17 @@ export default function RoundResultScreen() {
           onPress={handleNextRound}
           variant="primary"
         />
+
         <View style={styles.buttonSpacer} />
+
+        <PrimaryButton
+          title="Mudar Jogadores 👥"
+          onPress={handleChangePlayers}
+          variant="secondary"
+        />
+
+        <View style={styles.buttonSpacer} />
+
         <PrimaryButton
           title="Encerrar Jogo"
           onPress={handleEndGame}
@@ -143,19 +154,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
+  scroll: {
     flex: 1,
-    justifyContent: 'center',
+  },
+  content: {
+    flexGrow: 1,
     alignItems: 'center',
     paddingHorizontal: spacing.xxl,
+    paddingVertical: spacing.huge,
   },
   resultCard: {
     alignItems: 'center',
     marginBottom: spacing.xxxl,
-  },
-  emoji: {
-    fontSize: 80,
-    marginBottom: spacing.lg,
   },
   title: {
     ...typography.hero,
@@ -165,14 +175,14 @@ const styles = StyleSheet.create({
   subtitle: {
     ...typography.title,
     color: colors.dangerLight,
-    marginTop: spacing.xs,
+    textAlign: 'center',
   },
   secretContainer: {
     alignItems: 'center',
-    marginTop: spacing.xxl,
+    marginTop: spacing.xxxl,
     backgroundColor: colors.dangerMuted,
     paddingHorizontal: spacing.xxl,
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.md,
     borderRadius: borderRadius.lg,
     borderWidth: 1,
     borderColor: colors.danger,
@@ -185,6 +195,7 @@ const styles = StyleSheet.create({
   },
   secretNumber: {
     ...typography.resultNumber,
+    fontSize: 52,
     color: colors.danger,
   },
   reasonCard: {

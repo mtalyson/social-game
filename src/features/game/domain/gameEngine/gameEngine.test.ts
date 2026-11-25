@@ -177,7 +177,7 @@ describe('processGuess — invalid guesses', () => {
 });
 
 describe('processGuess — two adjacent remaining', () => {
-  it('should trigger elimination when guess narrows to two adjacent numbers', () => {
+  it('should continue game when guess narrows to two adjacent numbers so next player chooses', () => {
     const disabled = new Set<number>();
     for (let i = 1; i <= 17; i++) disabled.add(i);
     for (let i = 21; i <= 60; i++) disabled.add(i);
@@ -190,11 +190,11 @@ describe('processGuess — two adjacent remaining', () => {
 
     const { newState, roundResult } = processGuess(state, 18);
 
-    expect(roundResult).not.toBeNull();
-    expect(roundResult!.reason).toBe('revealedByElimination');
-    expect(roundResult!.loser.id).toBe('1');
-    expect(roundResult!.secretNumber).toBe(20);
-    expect(newState.phase).toBe('roundResult');
+    expect(roundResult).toBeNull();
+    expect(newState.phase).toBe('playing');
+    expect(newState.currentPlayerIndex).toBe(2);
+    expect(newState.disabledNumbers.has(19)).toBe(false);
+    expect(newState.disabledNumbers.has(20)).toBe(false);
   });
 
   it('should end with direct hit if player picks the secret from two adjacent', () => {
@@ -218,7 +218,7 @@ describe('processGuess — two adjacent remaining', () => {
   it('should trigger elimination when non-secret is chosen from two adjacent', () => {
     const disabled = new Set<number>();
     for (let i = 1; i <= 18; i++) disabled.add(i);
-    for (let i = 22; i <= 60; i++) disabled.add(i);
+    for (let i = 21; i <= 60; i++) disabled.add(i);
 
     const state = createTestState(19, {
       disabledNumbers: disabled,
@@ -226,7 +226,7 @@ describe('processGuess — two adjacent remaining', () => {
       roundStarter: players[0],
     });
 
-    const { roundResult } = processGuess(state, 21);
+    const { roundResult } = processGuess(state, 20);
 
     expect(roundResult).not.toBeNull();
     expect(roundResult!.reason).toBe('revealedByElimination');
@@ -234,7 +234,7 @@ describe('processGuess — two adjacent remaining', () => {
     expect(roundResult!.secretNumber).toBe(19);
   });
 
-  it('complete sequence: gradually narrow to two adjacent numbers', () => {
+  it('complete sequence: gradually narrow to two adjacent numbers and pick wrong', () => {
     let state = createTestState(35);
 
     let r = processGuess(state, 20);
@@ -266,6 +266,10 @@ describe('processGuess — two adjacent remaining', () => {
     expect(r.roundResult).toBeNull();
 
     r = processGuess(state, 34);
+    state = asPlaying(r.newState);
+    expect(r.roundResult).toBeNull();
+
+    r = processGuess(state, 36);
 
     expect(r.newState.phase).toBe('roundResult');
     expect(r.roundResult).not.toBeNull();
@@ -351,23 +355,30 @@ describe('edge case — secret number is 1', () => {
     expect(roundResult!.loser.id).toBe('1');
   });
 
-  it('guess 2 → 2 > 1 → disable >= 2 → only 1 left (not two adjacent)', () => {
+  it('guess 2 → 2 > 1 → disable >= 2 → only 1 left → next player loses', () => {
     const state = createTestState(1);
     const { newState, roundResult } = processGuess(state, 2);
 
-    expect(roundResult).toBeNull();
+    expect(roundResult).not.toBeNull();
+    expect(roundResult!.reason).toBe('lastNumberRemaining');
+    expect(roundResult!.loser.id).toBe('2');
+    expect(roundResult!.secretNumber).toBe(1);
+    expect(newState.phase).toBe('roundResult');
     expect(newState.disabledNumbers.has(2)).toBe(true);
     expect(newState.disabledNumbers.has(1)).toBe(false);
   });
 
-  it('narrowing to 1 and 2 with secret = 1 — guess 2 = direct hit impossible since secret=1', () => {
+  it('narrowing to 1 and 2 with secret = 1 — guess 2 triggers revealedByElimination', () => {
     const disabled = new Set<number>();
     for (let i = 3; i <= 60; i++) disabled.add(i);
 
     const state = createTestState(1, { disabledNumbers: disabled });
     const { roundResult } = processGuess(state, 2);
 
-    expect(roundResult).toBeNull();
+    expect(roundResult).not.toBeNull();
+    expect(roundResult!.reason).toBe('revealedByElimination');
+    expect(roundResult!.loser.id).toBe('1');
+    expect(roundResult!.secretNumber).toBe(1);
   });
 });
 
@@ -380,11 +391,15 @@ describe('edge case — secret number is 60', () => {
     expect(roundResult!.reason).toBe('guessedSecret');
   });
 
-  it('guess 59 → 59 < 60 → disable <= 59 → only 60 left', () => {
+  it('guess 59 → 59 < 60 → disable <= 59 → only 60 left → next player loses', () => {
     const state = createTestState(60);
     const { newState, roundResult } = processGuess(state, 59);
 
-    expect(roundResult).toBeNull();
+    expect(roundResult).not.toBeNull();
+    expect(roundResult!.reason).toBe('lastNumberRemaining');
+    expect(roundResult!.loser.id).toBe('2');
+    expect(roundResult!.secretNumber).toBe(60);
+    expect(newState.phase).toBe('roundResult');
     expect(newState.disabledNumbers.size).toBe(59);
     expect(newState.disabledNumbers.has(60)).toBe(false);
   });

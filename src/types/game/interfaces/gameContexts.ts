@@ -11,6 +11,7 @@ export interface IGameContextValue {
   startGame: (players: IPlayer[]) => void;
   makeGuess: (number: number) => void;
   nextRound: () => void;
+  changePlayers: () => void;
   resetGame: () => void;
   currentPlayer: IPlayer | null;
   availableBounds: { min: number; max: number } | null;
